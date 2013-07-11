@@ -25,3 +25,10 @@ class Student < ActiveRecord::Base
   end
 
 end
+
+students = Student.all
+students.each do |student|
+  student.update_attributes(
+    :name => student.name)
+  student.save
+end
