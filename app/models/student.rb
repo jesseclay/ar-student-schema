@@ -2,22 +2,26 @@ require_relative '../../db/config'
 require 'date'
 
 class Student < ActiveRecord::Base
-  attr_reader :first_name, :last_name, :gender, :dob, :email, :phone
-  def initialize(args)
-    @first_name = args.fetch(:first_name)
-    @last_name = args.fetch(:last_name)
-    @gender = args.fetch(:gender)
-    @DOB = args.fetch(:DOB)
-    @email = args.fetch(:email)
-    @phone = args.fetch(:phone)
-  end
+  # attr_accessor :first_name, :last_name, :gender, :birthday, :email, :phone
 
   def age
-    Date.today.strftime("%Y").to_i - @dob.scan(/\d{4}/).to_i
+    now = Date.today
+    now.year - birthday.year - ((now.month > birthday.month || (now.month == birthday.month && now.day >= birthday.day)) ? 0 : 1)
   end
 
   def name
-    @first_name + " " + @last_name
+    first_name + " " + last_name
+  end
+
+  validates :email, format: { with: /.+@.+[.].{2,}/,
+                              message: "invalid email"}                            
+  validates :email, uniqueness: true
+  validate :age_greater_than_4
+  validates :phone, format: { with: /\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})/,
+                              message: "invalid phone"}
+
+  def age_greater_than_4
+    errors.add(:birthday, "YOU ARE TOO YOUNG") if self.age < 5
   end
 
 end
